@@ -1,0 +1,40 @@
+name: Deployment
+
+on:
+    workflow_dispatch:
+        inputs:
+            alfa-release:
+                description: 'Release on alfa'
+                required: false
+                type: boolean
+
+            beta-release:
+                description: 'Release on beta'
+                required: false
+                type: boolean
+
+            prod-release:
+                description: 'Release on prod'
+                required: false
+                type: boolean
+
+jobs:
+    deploy:
+        strategy:
+            fail-fast: false
+            matrix:
+                enviroment:
+                    - ${{ github.event.inputs.alfa-release == 'true' && 'alfa' || false }}
+                    - ${{ github.event.inputs.beta-release == 'true' && 'beta' || false }}
+                    - ${{ github.event.inputs.prod-release == 'true' && 'production' || false }}
+                exclude:
+                    - enviroment: false
+
+        name: Deploy - ${{ matrix.enviroment }}
+        runs-on: ubuntu-latest
+        env:
+            DEPLOY_TARGET_ENV: ${{ matrix.enviroment }}
+        steps:
+            - name: Run step
+              run: |
+                 echo 'This step should not be run if matrix is empty, i.e. contains only false values'
